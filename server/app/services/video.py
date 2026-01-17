@@ -7,9 +7,8 @@
 #   - Uses -c copy for fast splitting (no re-encoding)
 # - extract_clip(input_path, start, end, output_path) -> clip path
 #   - Uses -c copy for fast extraction
-# - concatenate_clips(clip_paths, output_path) -> final reel path
-#   - Uses ffmpeg concat demuxer
-# - extract_clips_parallel(input_path, highlights, output_dir) -> list[clip_paths]
-#   - Extract multiple clips in parallel using asyncio.gather()
+# - extract_clips_parallel(input_path, markers, output_dir) -> list[clip_paths]
+#   - Extract clips for each detected marker in parallel
+#   - Filename format: marker_{index}_{type}_{start}s.mp4
 #
-# Note: All operations use local temp files
+# Note: No concatenation needed - we keep individual clips

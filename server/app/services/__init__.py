@@ -1,1 +1,3 @@
-# Services package - exports StorageService, TwelveLabsService, VideoService
+from app.services import storage
+
+__all__ = ["storage"]

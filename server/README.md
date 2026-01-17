@@ -1,12 +1,12 @@
-# Highlite Server
+# Autism Marker Detection API
 
-FastAPI backend for soccer highlight reel generation using TwelveLabs.
+FastAPI backend for psychologists to analyze child observation videos for autism behavioral markers using TwelveLabs AI.
 
 ## Setup
 
-1. Install dependencies:
+1. Install dependencies with uv:
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 2. Install FFmpeg (required for video processing):
@@ -27,46 +27,73 @@ cp env.example .env
 
 5. Run the server:
 ```bash
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
 ```
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/upload` | Upload video file + keywords, returns job_id |
+| POST | `/upload` | Upload video, returns job_id |
 | GET | `/jobs/{id}/status` | Get processing status + progress |
-| GET | `/jobs/{id}/download` | Download the highlight reel |
+| GET | `/jobs/{id}/report` | Get JSON report with all markers |
+| GET | `/jobs/{id}/clips` | List all detected marker clips |
+| GET | `/jobs/{id}/clips/{index}` | Download specific clip |
+| GET | `/health` | Health check |
 
-## Architecture (Simplified for Hackathon)
+## Output
 
-- **No database** - Jobs stored in memory dict
-- **No cloud storage** - Files in local temp directory
-- **Direct TwelveLabs upload** - No URL ingestion needed
+### Report (JSON)
+```json
+{
+  "job_id": "abc-123",
+  "video_duration": 180.5,
+  "analysis_date": "2024-01-15T10:30:00",
+  "markers": [
+    {
+      "type": "hand_flapping",
+      "start": 3.2,
+      "end": 8.5,
+      "confidence": 0.85,
+      "description": "Child exhibits rapid hand flapping motion..."
+    }
+  ],
+  "summary": "Analysis complete...",
+  "marker_counts": {"hand_flapping": 2, "limited_eye_contact": 1},
+  "total_markers": 3
+}
+```
+
+### Clips
+Individual video clips for each detected marker:
+- `marker_000_hand_flapping_3.2s.mp4`
+- `marker_001_limited_eye_contact_15.0s.mp4`
+
+## Default Markers Detected
+
+| Category | Markers |
+|----------|---------|
+| Motor | hand_flapping, rocking, spinning, toe_walking |
+| Social | limited_eye_contact, lack_of_social_engagement |
+| Communication | echolalia, limited_verbal_response |
+| Sensory | covering_ears, unusual_sensory_response |
+| Play | object_lining, repetitive_play |
+
+## Architecture
 
 ```
-POST /upload
-  → Save to /tmp/highlite/{job_id}/original.mp4
-  → Start background processing
-  → Return job_id
-
-Background Processing:
-  → Split video into chunks
-  → Upload each chunk to TwelveLabs (parallel)
-  → Get highlight timestamps
-  → Extract + stitch clips with FFmpeg
-  → Save to /tmp/highlite/{job_id}/highlight_reel.mp4
-
-GET /jobs/{id}/download
-  → Stream highlight_reel.mp4 to user
-```
-
-## File Structure
-
-```
-/tmp/highlite/{job_id}/
-├── original.mp4        # Uploaded video (deleted after processing)
-├── chunks/             # Split chunks (deleted after processing)
-├── clips/              # Extracted clips (deleted after processing)
-└── highlight_reel.mp4  # Final output (kept until download)
+POST /upload (video file)
+    ↓
+Save to temp directory
+    ↓
+Split into chunks (if > 15 min)
+    ↓
+TwelveLabs: Analyze for autism markers
+    ↓
+Extract individual clips with FFmpeg
+    ↓
+Generate report.json
+    ↓
+GET /report → JSON report
+GET /clips/{n} → Download clip
 ```

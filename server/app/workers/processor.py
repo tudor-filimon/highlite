@@ -1,23 +1,82 @@
-# Background video processing pipeline
-#
-# Main function: process_video(job_id)
-#
-# Pipeline steps:
-# 1. Get job from memory store, get video path (progress: 5%)
-# 2. Split into 6-9 chunks of 10-15 min with overlap (progress: 15%)
-# 3. PARALLEL: Upload chunks directly to TwelveLabs + analyze (progress: 20-65%)
-#    - Uses direct file upload, not URL ingestion
-# 4. Merge timestamps and deduplicate overlapping highlights (progress: 70%)
-# 5. PARALLEL: Extract all clips with FFmpeg (progress: 75-85%)
-# 6. Concatenate clips into final highlight reel (progress: 90%)
-# 7. Update job with highlight_path, status=completed (progress: 100%)
-#
-# Cleanup: Original video and chunks can be deleted after processing
-# Keep highlight_reel.mp4 until user downloads
-#
-# Helper functions:
-# - update_progress(job_id, progress)
-# - mark_failed(job_id, error_message)
-# - merge_and_dedupe_highlights(chunk_results) -> deduplicated list
-#
-# Note: All files in local temp directory, jobs in memory
+from datetime import datetime
+from app.services import storage
+from app.models import JobStatus
+
+
+async def process_video(job_id: str):
+    """
+    Background video processing pipeline for autism marker detection.
+    
+    Steps:
+    1. Get video info and duration
+    2. Split into chunks if needed
+    3. Upload to TwelveLabs and analyze for markers (parallel)
+    4. Merge marker results from all chunks
+    5. Extract individual clips for each marker (parallel)
+    6. Generate report.json
+    7. Cleanup temp files
+    """
+    try:
+        storage.update_job(job_id, status=JobStatus.PROCESSING, progress=5)
+        
+        job = storage.get_job(job_id)
+        if not job:
+            return
+        
+        # TODO: Implement processing steps
+        
+        # Step 1: Get video duration (progress: 10%)
+        storage.update_job(job_id, progress=10)
+        video_duration = 0.0  # TODO: Get actual duration with ffprobe
+        
+        # Step 2: Split into chunks if needed (progress: 15%)
+        storage.update_job(job_id, progress=15)
+        # TODO: Split video into chunks
+        
+        # Step 3-4: TwelveLabs analysis (progress: 20-70%)
+        storage.update_job(job_id, progress=20)
+        # TODO: Upload to TwelveLabs and analyze
+        markers = []  # Will be populated by TwelveLabs
+        
+        # Step 5: Extract clips (progress: 75-90%)
+        storage.update_job(job_id, progress=75)
+        # TODO: Extract clips using FFmpeg
+        
+        # Step 6: Generate report (progress: 95%)
+        storage.update_job(job_id, progress=95)
+        
+        # Create marker counts
+        marker_counts = {}
+        for marker in markers:
+            marker_type = marker.get("type", "unknown")
+            marker_counts[marker_type] = marker_counts.get(marker_type, 0) + 1
+        
+        report = {
+            "job_id": job_id,
+            "video_duration": video_duration,
+            "analysis_date": datetime.now().isoformat(),
+            "markers": markers,
+            "summary": "Analysis complete. See individual markers for details.",
+            "marker_counts": marker_counts,
+            "total_markers": len(markers)
+        }
+        
+        report_path = storage.save_report(job_id, report)
+        
+        # Step 7: Mark complete
+        storage.update_job(
+            job_id,
+            status=JobStatus.COMPLETED,
+            progress=100,
+            report_path=report_path
+        )
+        
+        # Cleanup temp files (keep clips and report)
+        storage.cleanup_job(job_id, keep_results=True)
+        
+    except Exception as e:
+        storage.update_job(
+            job_id,
+            status=JobStatus.FAILED,
+            error_message=str(e)
+        )

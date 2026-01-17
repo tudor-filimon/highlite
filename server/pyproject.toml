@@ -1,0 +1,25 @@
+[project]
+name = "highlite-server"
+version = "0.1.0"
+description = "Soccer highlight reel generator using TwelveLabs"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-multipart>=0.0.6",
+    "twelvelabs>=0.4.0",
+    "pydantic-settings>=2.1.0",
+    "aiofiles>=23.2.1",
+    "ffmpeg-python>=0.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.1.0",
+]

@@ -1,44 +1,16 @@
-# Highlite
+# Highlite - Autism Marker Detection
 
-AI-powered soccer highlight reel generator using TwelveLabs.
-
-## Architecture (Simplified for Hackathon)
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         NO EXTERNAL STORAGE                     │
-│                                                                 │
-│   • Jobs stored in memory (Python dict)                         │
-│   • Files stored in local /tmp directory                        │
-│   • Direct file upload to TwelveLabs (no URL ingestion)         │
-│   • Highlight reel returned as direct download                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-```
-User ──upload──> Backend ──file upload──> TwelveLabs
-                    │                          │
-                    │                     timestamps
-                    │                          │
-                    ◄──────────────────────────┘
-                    │
-               FFmpeg (extract + stitch)
-                    │
-                    ▼
-              highlight_reel.mp4
-                    │
-User <──download────┘
-```
+AI-powered tool for psychologists to analyze child observation videos for autism behavioral markers.
 
 ## Quick Start
 
 ### Backend
 ```bash
 cd server
-pip install -r requirements.txt
+uv sync
 cp env.example .env
 # Add your TWELVELABS_API_KEY to .env
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
 ```
 
 ### Frontend
@@ -48,18 +20,34 @@ npm install
 npm run dev
 ```
 
+## What It Does
+
+1. **Upload** - Psychologist uploads video of child observation session
+2. **Analyze** - TwelveLabs AI detects autism behavioral markers
+3. **Report** - Get JSON report with timestamps and descriptions
+4. **Clips** - Download individual video clips of each detected marker
+
+## Markers Detected
+
+- Hand flapping, rocking, spinning, toe walking
+- Limited eye contact, lack of social engagement
+- Echolalia, limited verbal response
+- Covering ears, unusual sensory responses
+- Object lining, repetitive play patterns
+
 ## API
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/upload` | Upload video + keywords, returns job_id |
-| GET | `/jobs/{id}/status` | Poll for status + progress |
-| GET | `/jobs/{id}/download` | Download highlight reel |
+| Endpoint | Description |
+|----------|-------------|
+| `POST /upload` | Upload video for analysis |
+| `GET /jobs/{id}/status` | Check processing progress |
+| `GET /jobs/{id}/report` | Get analysis report (JSON) |
+| `GET /jobs/{id}/clips` | List detected marker clips |
+| `GET /jobs/{id}/clips/{n}` | Download specific clip |
 
 ## Tech Stack
 
-- **Frontend**: React + Vite
-- **Backend**: Python + FastAPI
+- **Backend**: Python + FastAPI + uv
 - **AI**: TwelveLabs API
 - **Video**: FFmpeg
 - **Storage**: Local temp files (no cloud needed)
