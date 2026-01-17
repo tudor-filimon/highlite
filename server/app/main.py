@@ -6,3 +6,5 @@
 #   - /upload (upload.router)
 #   - /jobs (jobs.router)
 # - Add /health endpoint for health checks
+#
+# Note: No database connection needed - using in-memory job store

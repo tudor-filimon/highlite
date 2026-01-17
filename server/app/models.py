@@ -1,17 +1,17 @@
 # Pydantic models for request/response validation
 #
 # Enums:
-# - JobStatus: pending, uploading, processing, completed, failed
+# - JobStatus: pending, processing, completed, failed
 #
 # Request Models:
-# - UploadInitRequest: filename, keywords (optional)
-# - UploadCompleteRequest: job_id
+# - UploadRequest: keywords (optional) - file sent as multipart form
 #
 # Response Models:
-# - UploadInitResponse: job_id, upload_url, video_path
-# - UploadCompleteResponse: job_id, status
-# - JobStatusResponse: job_id, status, progress, highlight_url, error_message
-# - JobDetailResponse: Full job details including metadata
+# - UploadResponse: job_id
+# - JobStatusResponse: job_id, status, progress, error_message
 #
 # Internal Models:
+# - Job: id, status, progress, keywords, video_path, highlight_path, error
 # - Highlight: start, end, description
+#
+# Note: No database - jobs stored in memory dict

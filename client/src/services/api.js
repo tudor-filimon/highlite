@@ -2,22 +2,22 @@
 
 const API_BASE = '/api'
 
-// POST /upload/init - Get presigned URL for direct upload
-export async function initUpload(filename, keywords = []) {
-  // TODO: Implement
-}
-
-// Upload directly to Supabase using presigned URL
-export async function uploadToSupabase(uploadUrl, file, onProgress) {
-  // TODO: Implement with XMLHttpRequest for progress tracking
-}
-
-// POST /upload/complete - Notify backend upload is done
-export async function completeUpload(jobId) {
-  // TODO: Implement
+// POST /upload - Upload video file directly to backend
+export async function uploadVideo(file, keywords = [], onProgress) {
+  // TODO: Implement with FormData
+  // - file: video file
+  // - keywords: optional array of keywords
+  // - onProgress: callback for upload progress
+  // Returns: { job_id }
 }
 
 // GET /jobs/{id}/status - Poll for processing status
 export async function getJobStatus(jobId) {
   // TODO: Implement
+  // Returns: { job_id, status, progress, error_message }
+}
+
+// GET /jobs/{id}/download - Download highlight reel
+export function getDownloadUrl(jobId) {
+  return `${API_BASE}/jobs/${jobId}/download`
 }

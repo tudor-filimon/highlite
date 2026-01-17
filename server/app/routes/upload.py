@@ -1,12 +1,11 @@
 # Upload routes
 #
-# POST /upload/init
-# - Generate presigned URL for direct Supabase upload
-# - Create job record in database (status=uploading)
-# - Return job_id and upload_url
+# POST /upload
+# - Accept video file as multipart form data
+# - Accept optional keywords query param or form field
+# - Save file to temp directory
+# - Create job in memory store (status=processing)
+# - Queue background task: process_video(job_id)
+# - Return job_id immediately
 #
-# POST /upload/complete
-# - Called after frontend completes direct upload
-# - Update job status to processing
-# - Queue background task: process_video(job_id, video_path, keywords)
-# - Return job_id and status
+# Note: File uploaded directly to backend, no external storage

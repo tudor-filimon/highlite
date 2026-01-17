@@ -1,11 +1,19 @@
-# Supabase Storage service
+# Local temp file storage service
+#
+# In-memory job store: dict[job_id, Job]
 #
 # Methods:
-# - create_upload_url(path) -> presigned URL for frontend direct upload
-# - get_public_url(path) -> public URL for TwelveLabs URL ingestion
-# - create_signed_url(path, expires_in) -> temporary signed URL
-# - download(path) -> bytes
-# - upload(path, data) -> public URL
-# - delete(path) -> None
-# - list_files(prefix) -> list of files
-# - cleanup_job_files(job_id) -> delete original + chunks, keep highlight reel
+# - create_job(keywords) -> job_id, creates job dir in temp
+# - get_job(job_id) -> Job or None
+# - update_job(job_id, **updates) -> None
+# - get_job_dir(job_id) -> Path to job's temp directory
+# - cleanup_job(job_id) -> Delete all temp files for job
+#
+# File structure:
+# /tmp/highlite/{job_id}/
+#   ├── original.mp4      # Uploaded video
+#   ├── chunks/           # Split chunks
+#   ├── clips/            # Extracted clips  
+#   └── highlight_reel.mp4  # Final output
+#
+# Note: All in-memory, lost on server restart (fine for hackathon)

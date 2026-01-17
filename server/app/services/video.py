@@ -11,3 +11,5 @@
 #   - Uses ffmpeg concat demuxer
 # - extract_clips_parallel(input_path, highlights, output_dir) -> list[clip_paths]
 #   - Extract multiple clips in parallel using asyncio.gather()
+#
+# Note: All operations use local temp files
